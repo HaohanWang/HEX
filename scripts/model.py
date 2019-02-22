@@ -2,12 +2,12 @@ __author__ = 'Haohan Wang'
 
 import tensorflow as tf
 
-def lamda_variable(shape):
+def lamda_variable(shape): # NGLCM related
     initializer = tf.random_uniform_initializer(dtype=tf.float32, minval=0, maxval=shape[0])
     return tf.get_variable("lamda", shape, initializer=initializer, dtype=tf.float32)
 
 
-def theta_variable(shape):
+def theta_variable(shape): # NGLCM related
     initializer = tf.random_uniform_initializer(dtype=tf.float32, minval=0, maxval=shape[0])
     return tf.get_variable("theta", shape, initializer=initializer, dtype=tf.float32)
 
@@ -114,7 +114,7 @@ def conv(x, filter_height, filter_width, num_filters, stride_y, stride_x, name,
     return relu
 
 
-class AlexNet(object):
+class AlexNet(object): # Examples of original AlexNet for ImageNet classification
     def __init__(self, x, y):
         self.x = tf.reshape(x, shape=[-1, 227, 227, 3])
         self.y = y
@@ -172,7 +172,7 @@ class AlexNet(object):
    
 
 
-class AlexNetHex(object):
+class AlexNetHex(object): # Examples of plugging in HEX and NGLCM into original AlexNet for ImageNet classification
     def __init__(self, x, y, x_re, x_d, conf, Hex_flag=False):
         self.x = tf.reshape(x, shape=[-1, 227, 227, 3])
         self.x_re = tf.reshape(x_re, shape=[-1, 1, 784])
@@ -184,33 +184,21 @@ class AlexNetHex(object):
         self.batch = tf.placeholder(tf.float32)
         self.WEIGHTS_PATH = 'weights/bvlc_alexnet.npy'
 
-        #####################glgcm#########################
-
-        with tf.variable_scope('glgcm'):
+        # NGLCM
+        with tf.variable_scope('nglcm'):
             lamda = lamda_variable([conf.ngray, 1])
             theta = theta_variable([conf.ngray, 1])
             g = tf.matmul(tf.minimum(tf.maximum(tf.subtract(self.x_d, lamda), 1e-5), 1),
                           tf.minimum(tf.maximum(tf.subtract(self.x_re, theta), 1e-5), 1), transpose_b=True)
-            # g=tf.reduce_sum(index,reduction_indices=2)
-            # print(g.get_shape())
 
-        with tf.variable_scope("glgcm_fc1"):
+        with tf.variable_scope("nglcm_fc1"):
             g_flat = tf.reshape(g, [-1, conf.ngray * conf.ngray])
             glgcm_W_fc1 = weight_variable([conf.ngray * conf.ngray, 32])
             glgcm_b_fc1 = bias_variable([32])
             glgcm_h_fc1 = tf.nn.relu(tf.matmul(g_flat, glgcm_W_fc1) + glgcm_b_fc1)
-        # glgcm_h_fc1_drop = tf.nn.dropout(glgcm_h_fc1, self.keep_prob)
+        # --------------------------
 
-        glgcm_h_fc1 = tf.nn.l2_normalize(glgcm_h_fc1, 0)
-
-        #####################################glgcm############################
-        ######################################hex#############################
-        # H = glgcm_h_fc1
-        ######################################hex############################
-
-        ######################################Sentiment######################
-        # conv1
-
+        # 1st Layer
         conv1 = conv(self.x, 11, 11, 96, 4, 4, padding='VALID', name='conv1')
         norm1 = lrn(conv1, 2, 1e-05, 0.75, name='norm1')
         pool1 = max_pool(norm1, 3, 3, 2, 2, padding='VALID', name='pool1')
@@ -240,31 +228,30 @@ class AlexNetHex(object):
 
         fc7 = tf.nn.l2_normalize(fc7, 0)
 
-        dropout7 = dropout(fc7, self.keep_prob)
+        h_fc_drop = dropout(fc7, self.keep_prob)
 
-        # 8th Layer: FC and return unscaled activations
-        # self.fc8 = fc(dropout7, 4096, self.NUM_CLASSES, relu=False, name='fc8')
-        # conv2
-        # dropout
-        # h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
-        h_fc1_drop = dropout7
+        # Empirically, we noticed that normalization helps the performance very well, but it is recommended, but not necessary
+        glgcm_h_fc1 = tf.nn.l2_normalize(glgcm_h_fc1, 0)
+        h_fc_drop = tf.nn.l2_normalize(h_fc_drop, 0)
+        # --------------------------
 
-        yconv_contact_loss = tf.concat([h_fc1_drop, glgcm_h_fc1], 1)
+        # concatenate the representations (Equation 3 in paper)
+        yconv_contact_loss = tf.concat([h_fc_drop, glgcm_h_fc1], 1)
         pad = tf.zeros_like(glgcm_h_fc1, tf.float32)
-        yconv_contact_pred = tf.concat([h_fc1_drop, pad], 1)
+        yconv_contact_pred = tf.concat([h_fc_drop, pad], 1)
         pad2 = tf.zeros_like(fc7, tf.float32)
         yconv_contact_H = tf.concat([pad2, glgcm_h_fc1], 1)
-        # fc2
+        # --------------------------
+
+        # Expanding the final layer to take in the representation summarized by NGLCM
         with tf.variable_scope("fc8"):
             W_fc2 = weight_variable([4128, 1000])
             b_fc2 = bias_variable([1000])
             y_conv_loss = tf.matmul(yconv_contact_loss, W_fc2) + b_fc2
             y_conv_pred = tf.matmul(yconv_contact_pred, W_fc2) + b_fc2
             y_conv_H = tf.matmul(yconv_contact_H, W_fc2) + b_fc2
-        
-        # H = y_conv_H
-        # y_conv_loss = tf.nn.l2_normalize(y_conv_loss, 0)
-        # y_conv_H = tf.nn.l2_normalize(y_conv_H, 0)
+        # --------------------------
+
 
         self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=y_conv_loss))
         self.pred = tf.argmax(y_conv_pred, 1)
@@ -276,10 +263,19 @@ class AlexNetHex(object):
         self.topk_accuracy = tf.reduce_mean(tf.cast(topk_correct, tf.float32))
 
         if Hex_flag:
-            y_conv_loss = y_conv_loss - \
-                          tf.matmul(tf.matmul(
-                              tf.matmul(y_conv_H, tf.matrix_inverse(tf.matmul(y_conv_H, y_conv_H, transpose_a=True))),
+            # Projection (Equation 4 in the paper)
+            # Notice that, we are using the most succinct form of HEX as an example
+            y_conv_loss = y_conv_loss - tf.matmul(tf.matmul(tf.matmul(y_conv_H, tf.matrix_inverse(tf.matmul(y_conv_H, y_conv_H, transpose_a=True))),
                               y_conv_H, transpose_b=True), y_conv_loss)
+            # --------------------------
+
+
+            # # another form that involves a hyperparameter which can help the superficial statistics learner to summarize related statistics
+            # # we noticed that this form does not contribute much when the superficial statistics learner is NGLCM, but can be helpful in other cases
+            # y_conv_loss = y_conv_loss - tf.matmul(tf.matmul(tf.matmul(y_conv_H, tf.matrix_inverse(tf.matmul(y_conv_H, y_conv_H, transpose_a=True))),
+            #                   y_conv_H, transpose_b=True), y_conv_loss) \
+            #               + self.lam * y_conv_H
+            # # --------------------------
 
             self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=y_conv_loss))
 
