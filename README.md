@@ -19,3 +19,7 @@ Example implementation of the paper:
         - Normalization is recommended: [Line 233-236](https://github.com/HaohanWang/HEX/blob/master/scripts/model.py#L233)
   - [run.py](https://github.com/HaohanWang/HEX/blob/master/scripts/run.py) training and testing the model in classification
     - Prepare the data for NGLCM: [Line 23-46](https://github.com/HaohanWang/HEX/blob/master/scripts/run.py#L23)
+    
+### Replication
+
+For the codes that are used to replicate the experiments in the paper, please visit [HaohanWang/HEX_experiments](https://github.com/HaohanWang/HEX_experiments)
