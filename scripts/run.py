@@ -17,11 +17,10 @@ from tensorflow.data import Iterator
 
 from model import AlexNet, AlexNetHex
 
-from dataManagement.datagenerator import ImageDataGenerator
+from datagenerator import ImageDataGenerator
 
 
-# from tensorflow.examples.tutorials.mnist import input_data
-
+# methods to prepare X_rd and X_re for NGLCM usage
 def preparion(img, args):
     row = args.row
     column = args.col
@@ -44,7 +43,7 @@ def preparion(img, args):
         x_re[i] = np.asarray(1.0 * x_re[i] * (args.ngray - 1) / x_re[i].max(), dtype=np.int16)
         x_d[i] = np.dot(x_re[i], direction)
     return x_d, x_re
-
+# ----------------------------
 
 def train(args):
     num_classes = 1000
@@ -72,10 +71,11 @@ def train(args):
     train_batches_per_epoch = int(np.floor(tr_data.data_size / args.batch_size))
     val_batches_per_epoch = int(np.floor(val_data.data_size / args.batch_size))
 
-    x_re = tf.placeholder(tf.float32, (None, 28 * 28))
-    x_d = tf.placeholder(tf.float32, (None, 28 * 28))
+    x_re = tf.placeholder(tf.float32, (None, 128 * 128))
+    x_d = tf.placeholder(tf.float32, (None, 128 * 128))
     x = tf.placeholder(tf.float32, (None, 227, 227, 3))
     y = tf.placeholder(tf.float32, (None, num_classes))
+
 
     model = AlexNetHex(x, y, x_re, x_d, args, Hex_flag=True)
     # model = AlexNet(x, y)
@@ -123,8 +123,6 @@ def train(args):
 
             train_acc_mean = np.mean(train_accuracies)
             train_loss_mean = np.mean(train_losses)
-
-            # print ()
 
             # compute loss over validation data
             if validation:
