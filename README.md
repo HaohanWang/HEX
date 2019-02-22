@@ -24,6 +24,16 @@ Example implementation of the paper:
 
 For the codes that are used to replicate the experiments in the paper, please visit [HaohanWang/HEX_experiments](https://github.com/HaohanWang/HEX_experiments)
 
+### Bibtex
+
+    @inproceedings{
+    wang2018learning,
+    title={Learning Robust Representations by Projecting Superficial Statistics Out},
+    author={Haohan Wang and Zexue He and Zachary L. Lipton and Eric P. Xing},
+    booktitle={International Conference on Learning Representations},
+    year={2019},
+    url={https://openreview.net/forum?id=rJEjjoR9K7},
+    }
 
 ### Contact
 - [Haohan Wang](http://www.cs.cmu.edu/~haohanw/)
