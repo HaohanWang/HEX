@@ -12,7 +12,7 @@ Example implementation of the paper:
   - [model.py](https://github.com/HaohanWang/HEX/blob/master/scripts/model.py) implementation of NGLCM and HEX plugged into AlexNet
     - AlexNet (original implementation): [Line 20-170](https://github.com/HaohanWang/HEX/blob/master/scripts/model.py#L20)
     - AlexNet (with NGLCM and HEX): [Line 5-114](https://github.com/HaohanWang/HEX/blob/master/scripts/model.py#L5), [Line 175-280](https://github.com/HaohanWang/HEX/blob/master/scripts/model.py#L175)
-        - NGLCM: Line 5-17, [Line 187-199](https://github.com/HaohanWang/HEX/blob/master/scripts/model.py#L187)
+        - NGLCM: [Line 5-17](https://github.com/HaohanWang/HEX/blob/master/scripts/model.py#L5), [Line 187-199](https://github.com/HaohanWang/HEX/blob/master/scripts/model.py#L187)
         - Equation 3: [Line 238-244](https://github.com/HaohanWang/HEX/blob/master/scripts/model.py#L238)
         - Expanding the final layer: [Line 246-253](https://github.com/HaohanWang/HEX/blob/master/scripts/model.py#L246)
         - Equation 4: [Line 266-278](https://github.com/HaohanWang/HEX/blob/master/scripts/model.py#L266)
