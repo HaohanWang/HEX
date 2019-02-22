@@ -230,7 +230,7 @@ class AlexNetHex(object): # Examples of plugging in HEX and NGLCM into original 
 
         h_fc_drop = dropout(fc7, self.keep_prob)
 
-        # Empirically, we noticed that normalization helps the performance very well, but it is recommended, but not necessary
+        # Empirically, we noticed that normalization helps improving the performance, it is recommended, but not necessary
         glgcm_h_fc1 = tf.nn.l2_normalize(glgcm_h_fc1, 0)
         h_fc_drop = tf.nn.l2_normalize(h_fc_drop, 0)
         # --------------------------
@@ -252,7 +252,8 @@ class AlexNetHex(object): # Examples of plugging in HEX and NGLCM into original 
             y_conv_H = tf.matmul(yconv_contact_H, W_fc2) + b_fc2
         # --------------------------
 
-
+        # Different roles of y_conv_pred and y_conv_loss, for the purpose of succinctness
+        # One can also replace the following y_conv_pred to y_conv_loss, empirically, we do not observe big differences
         self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=y_conv_loss))
         self.pred = tf.argmax(y_conv_pred, 1)
 
@@ -261,6 +262,7 @@ class AlexNetHex(object): # Examples of plugging in HEX and NGLCM into original 
 
         topk_correct = tf.nn.in_top_k(y_conv_pred, tf.argmax(y, 1), k=self.top_k)
         self.topk_accuracy = tf.reduce_mean(tf.cast(topk_correct, tf.float32))
+        # --------------------------
 
         if Hex_flag:
             # Projection (Equation 4 in the paper)
