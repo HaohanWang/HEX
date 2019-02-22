@@ -23,3 +23,8 @@ Example implementation of the paper:
 ### Replication
 
 For the codes that are used to replicate the experiments in the paper, please visit [HaohanWang/HEX_experiments](https://github.com/HaohanWang/HEX_experiments)
+
+
+### Contact
+- [Haohan Wang](http://www.cs.cmu.edu/~haohanw/)
+- [@HaohanWang](https://twitter.com/HaohanWang)
