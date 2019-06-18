@@ -31,7 +31,7 @@ For the codes that are used to replicate the experiments in the paper, please vi
    - As we mentioned in the paper, we also have a hard time to optimize AlexNet with our method from beginning, however, we noticed that there are many tricks that can help. 
    
         - Train a network following the standard manner and then finetune with our method is recommended.   
-        - The initilization of NGLCM plays an important role, in fact, it plays a more important role than the optimization process of NGLCM. Therefore, if you notice that the initlization scales the representation too much and leads to NaN, we recommend to freeze optimization the NGLCM (then at least it's a starndard GLCM) rather than change the initialization. Another useful stragety (Thanks to [Songwei](https://github.com/SongweiGe)) is to normalize these representation to avoid scaling. 
+        - The initilization of NGLCM plays an important role, in fact, it plays a more important role than the optimization process of NGLCM. Therefore, if you notice that the initlization scales the representation too much and leads to NaN, we recommend to freeze optimization the NGLCM (then at least it's a starndard GLCM) rather than to alter the initialization manner. Another useful stragety (Thanks to [Songwei](https://github.com/SongweiGe)) is to normalize these representation to avoid scaling. 
         
 - **This method does not seem to help improve the performance of my CNN.**  
 
