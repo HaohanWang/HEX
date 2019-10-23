@@ -51,3 +51,7 @@ For the codes that are used to replicate the experiments in the paper, please vi
 ### Contact
 - [Haohan Wang](http://www.cs.cmu.edu/~haohanw/)
 - [@HaohanWang](https://twitter.com/HaohanWang)
+
+### Other Resources
+
+- You may be also interested in [HaohanWang/PAR](https://github.com/HaohanWang/PAR)
