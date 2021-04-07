@@ -37,6 +37,10 @@ For the codes that are used to replicate the experiments in the paper, please vi
 
    - As CNN is known to take advantage of superficial (non-semantic) information of the data, we do not guarantee our method to help improve the performance of the setting where testing data and training data are from the same distribution (where simply predicting through superficial information can also help). In other words, our method only excels in the setting where learning the semantic information plays an important role (such as domain adaptation/generalization settings). 
 
+- **It seems hard to apply this method to other applications.**
+
+   - Unfortunately, it seems so, especially with the scale of the experiments gets larger everyday. Also, the method is specially designed for the superficial features that NGLCM can handle, it should not be a surprise if it fails for experiments out of its scope. 
+
 ### Bibtex
 
     @inproceedings{
